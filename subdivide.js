@@ -459,6 +459,7 @@ class Surface {
         //
 
         // Step 0.
+        // S is the old surface, R is the new surface.
         const S = this;
         const R = new Surface(this.getName(),this.level+1);
 
@@ -467,20 +468,36 @@ class Surface {
         // THE CODE BELOW IS BOGUS! It copies the tetrahedron.
         //
         
-        const tetra = gSurfaces.get("tetra");
-        // Copy the tetrahedron vertcies.
-        for (let v of tetra.allVertices()) {
-            R.makeVertex(v.position);
-        }
-        // Copy the tetrahedron faces.
-        for (let f of tetra.allFaces()) {
-            const v0 = f.edge.target.id;
-            const v1 = f.edge.next.target.id;
-            const v2 = f.edge.prev.target.id;
-            R.makeFace(v0,v1,v2);
+        // Step 1
+        // Create a “clone vertex” within R of each vertex of S using R.makeVertex.
+        allVerticesIter = S.allVertices();
+
+        // Get all Vertices
+        for (let vertex of allVerticesIter) {
+            R.makeVertex(vertex);
         }
 
-        //
+        // Step 2
+        // Create a “split vertex” within R from each edge of S. Use R.makeVertex.
+        allEdgesIter = S.allEdges();
+
+        // Get all edges
+        for (let edge of allEdgesIter) {
+            points = edge.getPoints();
+            point1 = points[0];
+            point2 = points[1];
+            midpoint = point1.combo(0.5, point2);
+            R.makeVertex(midpoint);
+        }
+
+        // Step 3
+        // Create all the (oriented) faces of R from, four faces for each face of S 
+        // using the three cloned and splitting vertices built in Steps 1 and 2. 
+        // These faces should be built using R.makeFace with the correct vertices, 
+        // in the correct counterclockwise order. You should use these clone and split vertices ids.
+
+        // Step 4
+        // Return R
         R.regirth();
         return R;
     }
