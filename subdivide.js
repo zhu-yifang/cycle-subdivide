@@ -496,14 +496,20 @@ class Surface {
             // Check if the edge has already been assigned a split
             if (edge.split == null) {
                 edge.split = R.makeVertex(midpoint);
+                S.edges.set(edge.id, edge);
                 // Check if the edge has a twin
                 if (edge.twin != null){
                     const twinEdge = edge.twin;
                     twinEdge.split = edge.split;
+                    S.edges.set(twinEdge.id, twinEdge);
                 }
             }
         }
 
+        allEdgesIter = S.allEdges();
+        for (let edge of allEdgesIter) {
+            console.log(edge);
+        }
         // Step 3
         // Create all the (oriented) faces of R from, four faces for each face of S 
         // using the three cloned and splitting vertices built in Steps 1 and 2. 
