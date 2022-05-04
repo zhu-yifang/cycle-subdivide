@@ -470,24 +470,38 @@ class Surface {
         
         // Step 1
         // Create a “clone vertex” within R of each vertex of S using R.makeVertex.
-        allVerticesIter = S.allVertices();
+        let allVerticesIter = S.allVertices();
 
         // Get all Vertices
         for (let vertex of allVerticesIter) {
-            R.makeVertex(vertex);
+            vertex.clone = R.makeVertex(vertex.position);
+            S.vertices.set(vertex.id, vertex);
         }
+        allVerticesIter = R.allVertices();
 
+        // for (let vertex of allVerticesIter) {
+        //     console.log(vertex);
+        // }
+        
         // Step 2
         // Create a “split vertex” within R from each edge of S. Use R.makeVertex.
-        allEdgesIter = S.allEdges();
+        let allEdgesIter = S.allEdges();
 
         // Get all edges
         for (let edge of allEdgesIter) {
-            points = edge.getPoints();
-            point1 = points[0];
-            point2 = points[1];
-            midpoint = point1.combo(0.5, point2);
-            R.makeVertex(midpoint);
+            const pts = edge.getPoints();
+            const pt0 = pts[0];
+            const pt1 = pts[1];
+            const midpoint = pt0.combo(0.5, pt1);
+            // Check if the edge has already been assigned a split
+            if (edge.split == null) {
+                edge.split = R.makeVertex(midpoint);
+                // Check if the edge has a twin
+                if (edge.twin != null){
+                    const twinEdge = edge.twin;
+                    twinEdge.split = edge.split;
+                }
+            }
         }
 
         // Step 3
@@ -495,6 +509,7 @@ class Surface {
         // using the three cloned and splitting vertices built in Steps 1 and 2. 
         // These faces should be built using R.makeFace with the correct vertices, 
         // in the correct counterclockwise order. You should use these clone and split vertices ids.
+
 
         // Step 4
         // Return R
