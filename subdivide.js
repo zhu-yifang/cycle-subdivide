@@ -474,14 +474,39 @@ class Surface {
 
         // Get all Vertices
         for (let vertex of allVerticesIter) {
-            vertex.clone = R.makeVertex(vertex.position);
+            // Get all the neighbors of the vertex
+            let neighborEdges = [];
+            let neighborVertices = [];
+            // Find the first edge
+            let firstEdge = vertex.edge;
+            let currEdge = firstEdge;
+            // Push the first neighboring edge and vertex
+            neighborEdges.push(currEdge);
+            neighborVertices.push(currEdge.target.position);
+            currEdge = currEdge.prev.twin;
+            while (currEdge != firstEdge) {
+                neighborEdges.push(currEdge);
+                neighborVertices.push(currEdge.target.position);
+                currEdge = currEdge.prev.twin;
+            }
+            // Get the degree of vertex
+            const degree = neighborEdges.length;
+            // Get the beta
+            const beta = 5/8 - (3/8 + 1/4 * Math.cos(2 * Math.PI / degree))^2;
+            // Compute the position of the cloned vertex
+            let scalars = [];
+            for (let i = 0; i < degree; i++) {
+                scalars.push(beta / degree);
+            }
+            // Get the position of the cloned vertex
+            const newPosition = vertex.position.combos(scalars, neighborVertices);
+            // Make the cloned vertex
+            const clonedVertex = R.makeVertex(newPosition);
+            // Update the clone attribute of vertex
+            vertex.clone = clonedVertex;
+            // Update the vertex in S
             S.vertices.set(vertex.id, vertex);
         }
-        allVerticesIter = R.allVertices();
-
-        // for (let vertex of allVerticesIter) {
-        //     console.log(vertex);
-        // }
         
         // Step 2
         // Create a “split vertex” within R from each edge of S. Use R.makeVertex.
@@ -508,7 +533,7 @@ class Surface {
 
         allEdgesIter = S.allEdges();
         for (let edge of allEdgesIter) {
-            console.log(edge);
+            //console.log(edge);
         }
         // Step 3
         // Create all the (oriented) faces of R from, four faces for each face of S 
