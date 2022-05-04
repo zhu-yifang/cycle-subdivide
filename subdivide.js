@@ -507,20 +507,23 @@ class Surface {
             // Update the vertex in S
             S.vertices.set(vertex.id, vertex);
         }
-        
+
         // Step 2
         // Create a “split vertex” within R from each edge of S. Use R.makeVertex.
         let allEdgesIter = S.allEdges();
-
         // Get all edges
         for (let edge of allEdgesIter) {
-            const pts = edge.getPoints();
-            const pt0 = pts[0];
-            const pt1 = pts[1];
-            const midpoint = pt0.combo(0.5, pt1);
+            // Get the positions of the four control vertices
+            const P0 = edge.source.position;
+            const P1 = edge.target.position;
+            const Q1 = edge.next.target.position;
+            const Q0 = edge.twin.next.target.position;
+            // Get the position of the split
+            const scalars = [3/8, 1/8, 1/8];
+            const newPosition = P0.combos(scalars, [P1, Q0, Q1]);
             // Check if the edge has already been assigned a split
             if (edge.split == null) {
-                edge.split = R.makeVertex(midpoint);
+                edge.split = R.makeVertex(newPosition);
                 S.edges.set(edge.id, edge);
                 // Check if the edge has a twin
                 if (edge.twin != null){
@@ -530,18 +533,31 @@ class Surface {
                 }
             }
         }
-
-        allEdgesIter = S.allEdges();
-        for (let edge of allEdgesIter) {
-            //console.log(edge);
-        }
+        
         // Step 3
         // Create all the (oriented) faces of R from, four faces for each face of S 
         // using the three cloned and splitting vertices built in Steps 1 and 2. 
         // These faces should be built using R.makeFace with the correct vertices, 
         // in the correct counterclockwise order. You should use these clone and split vertices ids.
 
-
+        // Get all faces
+        let allFacesIter = S.allFaces();
+        for (let face of allFacesIter) {
+            // get the position of the three points
+            const e01 = face.edge;
+            const e12 = e01.next;
+            const e20 = e12.next;
+            const p0 = e01.source.clone.id;
+            const p1 = e01.target.clone.id;
+            const p2 = e12.target.clone.id;
+            const p01 = e01.split.id;
+            const p12 = e12.split.id;
+            const p20 = e20.split.id;
+            R.makeFace(p0, p01, p20);
+            R.makeFace(p20, p12, p2);
+            R.makeFace(p01, p01, p12);
+            R.makeFace(p20, p01, p12);
+        }
         // Step 4
         // Return R
         R.regirth();
