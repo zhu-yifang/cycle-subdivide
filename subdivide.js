@@ -472,6 +472,12 @@ class Surface {
         // Create a “clone vertex” within R of each vertex of S using R.makeVertex.
         let allVerticesIter = S.allVertices();
 
+        // // For debugging, print all the points
+        // for (let vertex of allVerticesIter) {
+        //     console.log(vertex);
+        // }
+        // allVerticesIter = S.allVertices();
+
         // Get all Vertices
         for (let vertex of allVerticesIter) {
             // Get all the neighbors of the vertex
@@ -491,13 +497,16 @@ class Surface {
             }
             // Get the degree of vertex
             const degree = neighborEdges.length;
+            
             // Get the beta
-            const beta = 5/8 - (3/8 + 1/4 * Math.cos(2 * Math.PI / degree))^2;
+            const beta = 5/8 - Math.pow((3/8 + 1/4 * Math.cos(2 * Math.PI / degree)), 2);
+            
             // Compute the position of the cloned vertex
             let scalars = [];
             for (let i = 0; i < degree; i++) {
                 scalars.push(beta / degree);
             }
+            
             // Get the position of the cloned vertex
             const newPosition = vertex.position.combos(scalars, neighborVertices);
             // Make the cloned vertex
@@ -507,6 +516,12 @@ class Surface {
             // Update the vertex in S
             S.vertices.set(vertex.id, vertex);
         }
+
+        // // For debugging, print all the points
+        // allVerticesIter = S.allVertices();
+        // for (let vertex of allVerticesIter) {
+        //     console.log(vertex);
+        // }
 
         // Step 2
         // Create a “split vertex” within R from each edge of S. Use R.makeVertex.
@@ -555,7 +570,7 @@ class Surface {
             const p20 = e20.split.id;
             R.makeFace(p0, p01, p20);
             R.makeFace(p20, p12, p2);
-            R.makeFace(p01, p01, p12);
+            R.makeFace(p01, p1, p12);
             R.makeFace(p20, p01, p12);
         }
         // Step 4
